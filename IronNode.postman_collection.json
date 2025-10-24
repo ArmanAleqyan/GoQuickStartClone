@@ -1,0 +1,657 @@
+{
+	"info": {
+		"name": "IronNode API",
+		"description": "API коллекция для тестирования IronNode проекта",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "reset_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register New User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has user_id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('user_id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\",\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Регистрация нового пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Demo User)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('token');",
+									"    ",
+									"    // Сохраняем токен в переменную окружения",
+									"    pm.collectionVariables.set(\"token\", jsonData.data.token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"demo@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Вход с demo пользователем. Токен автоматически сохранится."
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success message\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    ",
+									"    // Сохраняем токен для тестирования (в production его не будет в ответе)",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.collectionVariables.set(\"reset_token\", jsonData.data.token);",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"demo@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forgot-password"
+							]
+						},
+						"description": "Запросить восстановление пароля. Ссылка будет отправлена на email (в dev режиме выводится в консоль)."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Reset Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Token is valid\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.valid).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"{{reset_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify-reset-token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"verify-reset-token"
+							]
+						},
+						"description": "Проверить валидность токена восстановления пароля перед сбросом."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Password reset successful\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.message).to.include('Password reset successful');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"{{reset_token}}\",\n    \"new_password\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						},
+						"description": "Сбросить пароль используя токен восстановления. После сброса можно войти с новым паролем."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Profile",
+			"item": [
+				{
+					"name": "Get Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has user data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('email');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"profile"
+							]
+						},
+						"description": "Получить профиль текущего пользователя"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Blockchain Nodes",
+			"item": [
+				{
+					"name": "List All Nodes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/blockchain/nodes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blockchain",
+								"nodes"
+							]
+						},
+						"description": "Получить список всех blockchain нод"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Node by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/blockchain/nodes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"blockchain",
+								"nodes",
+								"1"
+							]
+						},
+						"description": "Получить информацию о конкретной ноде"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Blockchain Proxy",
+			"item": [
+				{
+					"name": "Ethereum - Get Block Number",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"eth_blockNumber\",\n    \"params\": [],\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/proxy/ethereum",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"proxy",
+								"ethereum"
+							]
+						},
+						"description": "Получить текущий номер блока Ethereum"
+					},
+					"response": []
+				},
+				{
+					"name": "Ethereum - Get Balance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"eth_getBalance\",\n    \"params\": [\n        \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n        \"latest\"\n    ],\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/proxy/ethereum",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"proxy",
+								"ethereum"
+							]
+						},
+						"description": "Получить баланс Ethereum адреса"
+					},
+					"response": []
+				},
+				{
+					"name": "Polygon - Get Block Number",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"eth_blockNumber\",\n    \"params\": [],\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/proxy/polygon/mainnet",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"proxy",
+								"polygon",
+								"mainnet"
+							]
+						},
+						"description": "Получить текущий номер блока Polygon"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Analytics",
+			"item": [
+				{
+					"name": "Get Usage Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/analytics/usage",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"analytics",
+								"usage"
+							]
+						},
+						"description": "Получить статистику использования API"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Request History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/analytics/requests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"analytics",
+								"requests"
+							]
+						},
+						"description": "Получить историю запросов"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API Keys",
+			"item": [
+				{
+					"name": "List API Keys",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api-keys",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api-keys"
+							]
+						},
+						"description": "Получить список API ключей пользователя"
+					},
+					"response": []
+				},
+				{
+					"name": "Create API Key",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My Production Key\",\n    \"description\": \"Key for production environment\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api-keys",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api-keys"
+							]
+						},
+						"description": "Создать новый API ключ"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete API Key",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api-keys/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api-keys",
+								"1"
+							]
+						},
+						"description": "Удалить API ключ"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "API Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/health",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Проверить работу API"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package billing;
+
+option go_package = "quicknode-clone/services/billing-service/proto";
+
+service BillingService {
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (SubscriptionResponse);
+  rpc GetSubscription(GetSubscriptionRequest) returns (SubscriptionResponse);
+  rpc CheckQuota(CheckQuotaRequest) returns (CheckQuotaResponse);
+  rpc IncrementUsage(IncrementUsageRequest) returns (IncrementUsageResponse);
+}
+
+message CreateSubscriptionRequest {
+  string user_id = 1;
+  string plan_type = 2;
+}
+
+message GetSubscriptionRequest {
+  string user_id = 1;
+}
+
+message SubscriptionResponse {
+  string id = 1;
+  string user_id = 2;
+  string plan_type = 3;
+  int32 requests_per_month = 4;
+  int32 requests_used = 5;
+  double price = 6;
+  bool is_active = 7;
+}
+
+message CheckQuotaRequest {
+  string user_id = 1;
+}
+
+message CheckQuotaResponse {
+  bool has_quota = 1;
+  string message = 2;
+}
+
+message IncrementUsageRequest {
+  string user_id = 1;
+}
+
+message IncrementUsageResponse {
+  bool success = 1;
+}

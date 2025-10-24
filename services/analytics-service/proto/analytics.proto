@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package analytics;
+
+option go_package = "quicknode-clone/services/analytics-service/proto";
+
+service AnalyticsService {
+  rpc LogRequest(LogRequestRequest) returns (LogRequestResponse);
+  rpc GetRequestHistory(GetRequestHistoryRequest) returns (GetRequestHistoryResponse);
+  rpc GetUsageStats(GetUsageStatsRequest) returns (GetUsageStatsResponse);
+}
+
+message LogRequestRequest {
+  string user_id = 1;
+  string api_key_id = 2;
+  string blockchain = 3;
+  string method = 4;
+  string endpoint = 5;
+  int32 status_code = 6;
+  int64 response_time = 7;
+  int64 request_size = 8;
+  int64 response_size = 9;
+  string ip_address = 10;
+  string user_agent = 11;
+  string error = 12;
+}
+
+message LogRequestResponse {
+  bool success = 1;
+}
+
+message GetRequestHistoryRequest {
+  string user_id = 1;
+  int32 limit = 2;
+}
+
+message GetRequestHistoryResponse {
+  repeated RequestLog logs = 1;
+}
+
+message RequestLog {
+  string id = 1;
+  string user_id = 2;
+  string api_key_id = 3;
+  string blockchain = 4;
+  string method = 5;
+  string endpoint = 6;
+  int32 status_code = 7;
+  int64 response_time = 8;
+  int64 request_size = 9;
+  int64 response_size = 10;
+  string ip_address = 11;
+  string user_agent = 12;
+  string error = 13;
+  string created_at = 14;
+}
+
+message GetUsageStatsRequest {
+  string user_id = 1;
+  string start_date = 2;
+  string end_date = 3;
+}
+
+message GetUsageStatsResponse {
+  int64 total_requests = 1;
+  int64 successful_requests = 2;
+  double success_rate = 3;
+  int64 average_response_time = 4;
+}

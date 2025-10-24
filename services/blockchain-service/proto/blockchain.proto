@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package blockchain;
+
+option go_package = "quicknode-clone/services/blockchain-service/proto";
+
+service BlockchainService {
+  rpc CreateNode(CreateNodeRequest) returns (NodeResponse);
+  rpc GetNode(GetNodeRequest) returns (NodeResponse);
+  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse);
+  rpc GetNodesByType(GetNodesByTypeRequest) returns (ListNodesResponse);
+}
+
+message CreateNodeRequest {
+  string name = 1;
+  string type = 2;
+  string network = 3;
+  string url = 4;
+}
+
+message GetNodeRequest {
+  string id = 1;
+}
+
+message ListNodesRequest {}
+
+message GetNodesByTypeRequest {
+  string type = 1;
+}
+
+message NodeResponse {
+  string id = 1;
+  string name = 2;
+  string type = 3;
+  string network = 4;
+  string url = 5;
+  bool is_active = 6;
+  int32 priority = 7;
+}
+
+message ListNodesResponse {
+  repeated NodeResponse nodes = 1;
+}

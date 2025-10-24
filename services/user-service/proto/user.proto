@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "quicknode-clone/services/user-service/proto";
+
+service UserService {
+  rpc CreateAPIKey(CreateAPIKeyRequest) returns (APIKeyResponse);
+  rpc GetAPIKeys(GetAPIKeysRequest) returns (GetAPIKeysResponse);
+  rpc ValidateAPIKey(ValidateAPIKeyRequest) returns (ValidateAPIKeyResponse);
+  rpc DeleteAPIKey(DeleteAPIKeyRequest) returns (DeleteAPIKeyResponse);
+}
+
+message CreateAPIKeyRequest {
+  string user_id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message GetAPIKeysRequest {
+  string user_id = 1;
+}
+
+message APIKeyResponse {
+  string id = 1;
+  string user_id = 2;
+  string key = 3;
+  string name = 4;
+  string description = 5;
+  bool is_active = 6;
+}
+
+message GetAPIKeysResponse {
+  repeated APIKeyResponse api_keys = 1;
+}
+
+message ValidateAPIKeyRequest {
+  string key = 1;
+}
+
+message ValidateAPIKeyResponse {
+  bool valid = 1;
+  string user_id = 2;
+}
+
+message DeleteAPIKeyRequest {
+  string id = 1;
+}
+
+message DeleteAPIKeyResponse {
+  bool success = 1;
+}
