@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "IronNode API",
-		"description": "API коллекция для тестирования IronNode проекта",
+		"description": "# IronNode - Платформа для доступа к Blockchain нодам\n\n## 📋 Описание проекта\n\n**IronNode** - это мощная платформа для доступа к blockchain нодам через REST API, построенная на микросервисной архитектуре. Проект предоставляет разработчикам единый интерфейс для работы с различными блокчейнами, управления криптокошельками и мониторинга использования.\n\n## 🏗️ Архитектура\n\nПроект состоит из следующих микросервисов:\n\n- **API Gateway** (порт 8080) - REST API endpoint для клиентских запросов\n- **Auth Service** (gRPC 50051) - Аутентификация и управление пользователями\n- **User Service** (gRPC 50052) - Управление API ключами\n- **Blockchain Service** (gRPC 50053) - Подключение к blockchain нодам\n- **Analytics Service** (gRPC 50055) - Логирование и статистика\n- **Billing Service** (gRPC 50056) - Управление подписками и квотами\n- **Wallet Service** - Генерация и управление криптокошельками\n\n## 🔐 Аутентификация\n\nВсе защищенные endpoints требуют JWT токен в заголовке:\n```\nAuthorization: Bearer YOUR_JWT_TOKEN\n```\n\n## 💼 Основные возможности\n\n### 1. **Управление пользователями**\n- Регистрация и аутентификация\n- Восстановление пароля\n- Управление профилем\n\n### 2. **API Ключи**\n- Создание и управление API ключами\n- Контроль доступа к ресурсам\n\n### 3. **Blockchain Nodes**\n- Поддержка множественных блокчейнов (Ethereum, Polygon, BSC, Avalanche, Solana)\n- Управление подключениями к нодам\n- Приоритизация нод\n\n### 4. **Wallet Service** 💰\n- Генерация криптокошельков для различных сетей:\n  - **ETH** - Ethereum Mainnet\n  - **BTC** - Bitcoin Mainnet\n  - **BEP20** - Binance Smart Chain\n  - **TRC20** - Tron Network\n  - **MATIC** - Polygon Network\n- Безопасное хранение приватных ключей (AES-256-GCM шифрование)\n- Управление кошельками клиентов\n\n### 5. **Analytics & Billing**\n- Статистика использования API\n- История запросов\n- Управление подписками (Free, Basic, Professional, Enterprise)\n\n## 📊 Планы подписок\n\n| План | Запросов/месяц | Цена |\n|------|----------------|------|\n| Free | 10,000 | $0 |\n| Basic | 100,000 | $29.99 |\n| Professional | 1,000,000 | $99.99 |\n| Enterprise | 10,000,000 | $499.99 |\n\n## 🔧 Технологический стек\n\n- **Backend**: Go 1.23\n- **Web Framework**: Gin\n- **RPC**: gRPC + Protocol Buffers\n- **Database**: PostgreSQL 16\n- **Cache**: Redis 7\n- **ORM**: GORM\n- **Authentication**: JWT\n- **Encryption**: AES-256-GCM\n- **Containerization**: Docker & Docker Compose\n\n## 📝 Формат ответов API\n\nВсе endpoints возвращают единую структуру:\n\n**Успешный ответ:**\n```json\n{\n  \"message\": \"Operation successful\",\n  \"data\": {...},\n  \"status\": 200\n}\n```\n\n**Ответ с ошибкой:**\n```json\n{\n  \"message\": \"Error description\",\n  \"error\": \"Detailed error message\",\n  \"status\": 400\n}\n```\n\n## 🚀 Быстрый старт\n\n1. Зарегистрируйтесь через `/auth/register`\n2. Войдите через `/auth/login` и получите JWT токен\n3. Используйте токен для доступа к защищенным endpoints\n4. Создайте API ключи через `/api-keys`\n5. Создайте кошельки для ваших клиентов через `/wallets`\n\n## 🔒 Безопасность\n\n- Все пароли хешируются с использованием bcrypt\n- JWT токены для аутентификации\n- Приватные ключи кошельков шифруются AES-256-GCM\n- Rate limiting для защиты от злоупотреблений\n- CORS middleware для контроля доступа\n\n## 📞 Поддержка\n\nДля вопросов и предложений создайте Issue в репозитории проекта.\n\n---\n\n**Версия API**: 1.0.0\n**Последнее обновление**: 2025-11-25",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -19,11 +19,17 @@
 			"key": "reset_token",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "wallet_id",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"item": [
 		{
 			"name": "Authentication",
+			"description": "## 🔐 Аутентификация и управление пользователями\n\nСервис для регистрации, аутентификации и управления учетными записями пользователей.\n\n### Основные операции:\n\n1. **Регистрация** - создание новой учетной записи\n2. **Вход** - получение JWT токена для доступа к защищенным endpoints\n3. **Восстановление пароля** - процесс сброса пароля через email\n4. **Проверка токена сброса** - валидация токена восстановления\n5. **Сброс пароля** - установка нового пароля\n6. **Получение профиля** - информация о текущем пользователе\n\n### JWT токен:\n\nПосле успешного входа вы получите JWT токен:\n\n```json\n{\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  },\n  \"status\": 200\n}\n```\n\nИспользуйте этот токен в заголовке Authorization для всех защищенных endpoints:\n\n```\nAuthorization: Bearer YOUR_JWT_TOKEN\n```\n\n### Безопасность:\n\n- Пароли хешируются с использованием **bcrypt**\n- JWT токены подписываются секретным ключом\n- Токены сброса пароля действительны ограниченное время\n- Rate limiting для защиты от брутфорса",
 			"item": [
 				{
 					"name": "Register New User",
@@ -316,6 +322,7 @@
 		},
 		{
 			"name": "Blockchain Nodes",
+			"description": "## ⛓️ Управление Blockchain нодами\n\nСервис для управления подключениями к различным blockchain нодам и взаимодействия с ними.\n\n### Поддерживаемые блокчейны:\n\n- **Ethereum** - Mainnet и Testnets\n- **Polygon** - Mainnet и Mumbai Testnet\n- **Binance Smart Chain** (BSC)\n- **Avalanche**\n- **Solana**\n- **Tron**\n- И другие EVM-совместимые сети\n\n### Основные операции:\n\n1. **Список нод** - просмотр всех доступных blockchain нод\n2. **Детали ноды** - получение информации о конкретной ноде\n3. **Proxy запросы** - отправка JSON-RPC запросов к нодам\n\n### Proxy endpoints:\n\nИспользуйте proxy endpoints для отправки JSON-RPC запросов:\n\n```bash\nPOST /api/v1/proxy/ethereum\nPOST /api/v1/proxy/polygon/mainnet\nPOST /api/v1/proxy/bsc\n```\n\n### Пример запроса:\n\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"eth_blockNumber\",\n  \"params\": [],\n  \"id\": 1\n}\n```\n\n### Приоритизация нод:\n\n- Система автоматически выбирает оптимальную ноду\n- Поддержка failover при недоступности ноды\n- Балансировка нагрузки между нодами\n\n### Метрики:\n\n- Отслеживание времени отклика нод\n- Логирование всех запросов\n- Статистика использования по блокчейнам",
 			"item": [
 				{
 					"name": "List All Nodes",
@@ -490,6 +497,7 @@
 		},
 		{
 			"name": "Analytics",
+			"description": "## 📊 Аналитика и статистика\n\nСервис для мониторинга использования API, просмотра истории запросов и анализа метрик.\n\n### Основные операции:\n\n1. **Статистика использования** - общая информация об использовании API\n2. **История запросов** - детальный журнал всех запросов\n\n### Статистика использования:\n\nПолучите сводную информацию:\n\n- Общее количество запросов\n- Запросы по периодам (день, неделя, месяц)\n- Использование квоты подписки\n- Распределение по блокчейнам\n- Топ методов\n\n### История запросов:\n\nПросматривайте детальную историю:\n\n- Временная метка запроса\n- HTTP метод и endpoint\n- Статус ответа\n- Время выполнения\n- Размер данных\n- IP адрес\n\n### Фильтрация:\n\nИспользуйте query параметры для фильтрации:\n\n```\nGET /api/v1/analytics/requests?from=2025-11-20&to=2025-11-25&status=200\n```\n\n### Применение:\n\n- Мониторинг производительности\n- Отладка проблем\n- Оптимизация использования\n- Анализ затрат\n- Compliance и аудит",
 			"item": [
 				{
 					"name": "Get Usage Statistics",
@@ -545,6 +553,7 @@
 		},
 		{
 			"name": "API Keys",
+			"description": "## 🔑 Управление API ключами\n\nСервис для создания и управления API ключами, которые используются для доступа к ресурсам платформы.\n\n### Основные операции:\n\n1. **Создание ключа** - генерация нового API ключа с названием и описанием\n2. **Список ключей** - просмотр всех ваших API ключей\n3. **Удаление ключа** - отзыв API ключа\n\n### Использование API ключей:\n\nAPI ключи используются для:\n- Доступа к blockchain нодам\n- Аутентификации в публичных endpoints\n- Отслеживания использования квот\n- Биллинга и аналитики\n\n### Формат ключа:\n\nПосле создания вы получите:\n\n```json\n{\n  \"message\": \"API key created successfully\",\n  \"data\": {\n    \"id\": \"uuid\",\n    \"name\": \"Production Key\",\n    \"key\": \"sk_live_abc123...\",\n    \"created_at\": \"2025-11-25T10:00:00Z\"\n  },\n  \"status\": 201\n}\n```\n\n### Важно:\n\n- Сохраните API ключ сразу после создания - он больше не будет показан\n- Не передавайте ключи в открытом виде\n- Регулярно ротируйте ключи\n- Удаляйте неиспользуемые ключи",
 			"item": [
 				{
 					"name": "List API Keys",
@@ -624,6 +633,728 @@
 							]
 						},
 						"description": "Удалить API ключ"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Wallets",
+			"description": "## 💼 Управление криптокошельками\n\nСервис для генерации и управления криптокошельками для различных блокчейн-сетей.\n\n### Поддерживаемые сети:\n\n- **ETH** - Ethereum Mainnet\n- **BTC** - Bitcoin Mainnet  \n- **BEP20** - Binance Smart Chain (BSC)\n- **TRC20** - Tron Network\n- **MATIC** - Polygon Network\n\n### Безопасность:\n\n- Приватные ключи шифруются с использованием **AES-256-GCM**\n- Приватные ключи **НИКОГДА** не возвращаются в API ответах\n- Ключ шифрования хранится в переменной окружения\n- Каждый кошелек привязан к пользователю и клиенту\n\n### Основные операции:\n\n1. **Создание кошельков** - генерация новых кошельков для всех сетей или выбранных\n2. **Получение списка** - просмотр всех кошельков с фильтрацией по сетям\n3. **Получение по ID** - детальная информация о кошельке\n4. **Получение по клиенту** - все кошельки конкретного клиента\n5. **Деактивация** - отключение кошелька (мягкое удаление)\n\n### Формат ответа:\n\n```json\n{\n  \"message\": \"Wallets created successfully\",\n  \"data\": [\n    {\n      \"id\": \"uuid\",\n      \"client_user_id\": \"client_123\",\n      \"address\": \"0x...\",\n      \"network\": \"ETH\",\n      \"created_at\": \"2025-11-25T10:00:00Z\"\n    }\n  ],\n  \"status\": 201\n}\n```\n\n### Примечания:\n\n- Один клиент может иметь только один кошелек на каждую сеть\n- При повторном запросе создания существующие кошельки возвращаются без дублирования\n- Все endpoints требуют JWT аутентификацию",
+			"item": [
+				{
+					"name": "Create Wallets (All Networks)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has correct structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData.status).to.equal(201);",
+									"});",
+									"",
+									"pm.test(\"Response data is array with wallets\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"    pm.expect(jsonData.data.length).to.be.at.least(1);",
+									"    ",
+									"    // Проверяем структуру кошелька",
+									"    var wallet = jsonData.data[0];",
+									"    pm.expect(wallet).to.have.property('id');",
+									"    pm.expect(wallet).to.have.property('address');",
+									"    pm.expect(wallet).to.have.property('network');",
+									"    pm.expect(wallet).to.have.property('client_user_id');",
+									"    ",
+									"    // Сохраняем ID первого кошелька",
+									"    pm.collectionVariables.set(\"wallet_id\", wallet.id);",
+									"});",
+									"",
+									"pm.test(\"All networks present\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var networks = jsonData.data.map(w => w.network);",
+									"    pm.expect(networks).to.include.members(['ETH', 'BTC', 'BEP20', 'TRC20', 'MATIC']);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"client_12345\",\n    \"purpose\": \"Deposit wallet for user\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wallets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets"
+							]
+						},
+						"description": "Создать кошельки для всех основных сетей: ETH, BTC, BEP20, TRC20, MATIC. Если поле networks не указано - создаются кошельки для всех сетей. Приватные ключи шифруются и НЕ возвращаются в ответе."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Wallets (ETH and BTC only)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has only ETH and BTC wallets\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('eth_wallet');",
+									"    pm.expect(jsonData.data).to.have.property('btc_wallet');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"client_12346\",\n    \"purpose\": \"ETH and BTC only\",\n    \"networks\": [\"ETH\", \"BTC\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wallets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets"
+							]
+						},
+						"description": "Создать кошельки только для ETH и BTC сетей. Указываем конкретные сети в массиве networks."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Wallets (TRC20 only)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has only TRC20 wallet\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('trc20_wallet');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"client_12347\",\n    \"purpose\": \"TRC20 only\",\n    \"networks\": [\"TRC20\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wallets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets"
+							]
+						},
+						"description": "Создать кошелек только для сети TRC20 (Tron)."
+					},
+					"response": []
+				},
+				{
+					"name": "List All Wallets",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has wallets array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets"
+							]
+						},
+						"description": "Получить все кошельки текущего пользователя. Можно фильтровать по сетям через query параметр ?networks=ETH,BTC"
+					},
+					"response": []
+				},
+				{
+					"name": "List Wallets (ETH and BTC only)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has only ETH and BTC wallets\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"    jsonData.data.forEach(function(wallet) {",
+									"        pm.expect(['ETH', 'BTC']).to.include(wallet.network);",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallets?networks=ETH,BTC",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets"
+							],
+							"query": [
+								{
+									"key": "networks",
+									"value": "ETH,BTC"
+								}
+							]
+						},
+						"description": "Получить кошельки текущего пользователя, отфильтрованные по сетям ETH и BTC"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Wallet by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallets/{{wallet_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets",
+								"{{wallet_id}}"
+							]
+						},
+						"description": "Получить информацию о конкретном кошельке по ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Wallets by Client User ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallets/client/client_12345",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets",
+								"client",
+								"client_12345"
+							]
+						},
+						"description": "Получить все кошельки конкретного клиента (по client_user_id). Можно фильтровать по сетям через query параметр ?networks=TRC20"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Wallets by Client (TRC20 only)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallets/client/client_12345?networks=TRC20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets",
+								"client",
+								"client_12345"
+							],
+							"query": [
+								{
+									"key": "networks",
+									"value": "TRC20"
+								}
+							]
+						},
+						"description": "Получить только TRC20 кошельки конкретного клиента"
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate Wallet",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallets/{{wallet_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallets",
+								"{{wallet_id}}"
+							]
+						},
+						"description": "Деактивировать кошелек (мягкое удаление)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Balance API (Tron)",
+			"description": "Получение балансов TRX и USDT для кошельков Tron.\n\nTron Node: `http://78.46.94.60:8090`\n\n**Поддерживаемые валюты:**\n- TRX (нативная валюта)\n- USDT TRC20 (контракт: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t)\n\n**Конвертация:** 1 TRX = 1,000,000 SUN | 1 USDT = 1,000,000 единиц",
+			"item": [
+				{
+					"name": "Get TRX and USDT Balances",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has correct structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response has all balance fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var data = jsonData.data;",
+									"    ",
+									"    pm.expect(data).to.have.property('address');",
+									"    pm.expect(data).to.have.property('trx_balance');",
+									"    pm.expect(data).to.have.property('usdt_balance');",
+									"    pm.expect(data).to.have.property('trx_decimal');",
+									"    pm.expect(data).to.have.property('usdt_decimal');",
+									"});",
+									"",
+									"pm.test(\"Balance values are valid\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var data = jsonData.data;",
+									"    ",
+									"    // Проверяем что балансы - это строки с числами",
+									"    pm.expect(data.trx_balance).to.be.a('string');",
+									"    pm.expect(data.usdt_balance).to.be.a('string');",
+									"    pm.expect(parseFloat(data.trx_decimal)).to.be.a('number');",
+									"    pm.expect(parseFloat(data.usdt_decimal)).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/balance/tron/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"balance",
+								"tron",
+								"TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+							]
+						},
+						"description": "Получить балансы TRX и USDT для указанного Tron адреса. Возвращает оба баланса в raw формате (SUN для TRX, минимальные единицы для USDT) и в человекочитаемом формате."
+					},
+					"response": []
+				},
+				{
+					"name": "Get TRX Balance Only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has TRX balance\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('trx_balance');",
+									"    pm.expect(jsonData.data).to.have.property('trx_decimal');",
+									"    pm.expect(jsonData.data).to.have.property('address');",
+									"});",
+									"",
+									"pm.test(\"TRX balance is valid number\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var balance = parseFloat(jsonData.data.trx_decimal);",
+									"    pm.expect(balance).to.be.a('number');",
+									"    pm.expect(balance).to.be.at.least(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/balance/trx/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"balance",
+								"trx",
+								"TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+							]
+						},
+						"description": "Получить только баланс TRX (нативная валюта Tron) для указанного адреса. 1 TRX = 1,000,000 SUN."
+					},
+					"response": []
+				},
+				{
+					"name": "Get USDT Balance Only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has USDT balance\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('usdt_balance');",
+									"    pm.expect(jsonData.data).to.have.property('usdt_decimal');",
+									"    pm.expect(jsonData.data).to.have.property('address');",
+									"});",
+									"",
+									"pm.test(\"USDT balance is valid number\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var balance = parseFloat(jsonData.data.usdt_decimal);",
+									"    pm.expect(balance).to.be.a('number');",
+									"    pm.expect(balance).to.be.at.least(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/balance/usdt/TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"balance",
+								"usdt",
+								"TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+							]
+						},
+						"description": "Получить только баланс USDT TRC20 для указанного адреса. 1 USDT = 1,000,000 минимальных единиц. Контракт: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Balances (POST)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response structure is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.data).to.have.property('address');",
+									"    pm.expect(jsonData.data).to.have.property('trx_balance');",
+									"    pm.expect(jsonData.data).to.have.property('usdt_balance');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"address\": \"TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/balance/check",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"balance",
+								"check"
+							]
+						},
+						"description": "Получить балансы TRX и USDT через POST запрос. Альтернативный способ для случаев, когда нужно передать адрес в теле запроса."
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Address (Error Example)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Error message is correct\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData.message).to.include('Invalid Tron address');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/balance/tron/INVALID_ADDRESS",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"balance",
+								"tron",
+								"INVALID_ADDRESS"
+							]
+						},
+						"description": "Пример ошибки при невалидном адресе. Адрес должен начинаться с 'T' и иметь длину 34 символа."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Balance by Wallet ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has all wallet balance fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var data = jsonData.data;",
+									"    pm.expect(data).to.have.property('wallet_id');",
+									"    pm.expect(data).to.have.property('client_user_id');",
+									"    pm.expect(data).to.have.property('address');",
+									"    pm.expect(data).to.have.property('network');",
+									"    pm.expect(data).to.have.property('trx_balance');",
+									"    pm.expect(data).to.have.property('usdt_balance');",
+									"    pm.expect(data).to.have.property('trx_decimal');",
+									"    pm.expect(data).to.have.property('usdt_decimal');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/balance/wallet/:wallet_id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"balance",
+								"wallet",
+								":wallet_id"
+							],
+							"variable": [
+								{
+									"key": "wallet_id",
+									"value": "03a48b56-cad0-4a87-be4f-e67536931082",
+									"description": "UUID кошелька из БД"
+								}
+							]
+						},
+						"description": "Получить баланс TRX и USDT по ID кошелька из базы данных. Возвращает баланс вместе с информацией о кошельке (wallet_id, client_user_id, address, network)."
 					},
 					"response": []
 				}

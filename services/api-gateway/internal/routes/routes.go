@@ -69,6 +69,26 @@ func SetupRoutes(
 				apiKeys.POST("", handler.CreateAPIKey)
 				apiKeys.DELETE("/:id", handler.DeleteAPIKey)
 			}
+
+			// Wallet routes
+			wallets := protected.Group("/wallets")
+			{
+				wallets.POST("", handler.CreateWallet)                                  // Создать кошельки (BEP20 + TRC20)
+				wallets.GET("", handler.GetWallets)                                     // Получить все кошельки
+				wallets.GET("/:id", handler.GetWalletByID)                              // Получить кошелек по ID
+				wallets.GET("/client/:client_user_id", handler.GetWalletsByClient)     // Получить кошельки клиента
+				wallets.DELETE("/:id", handler.DeactivateWallet)                        // Деактивировать кошелек
+			}
+
+			// Balance routes (Tron - TRX и USDT)
+			balance := protected.Group("/balance")
+			{
+				balance.GET("/tron/:address", handler.GetTronBalance)       // Получить TRX и USDT балансы по адресу
+				balance.GET("/trx/:address", handler.GetTRXBalanceOnly)     // Получить только TRX баланс
+				balance.GET("/usdt/:address", handler.GetUSDTBalanceOnly)   // Получить только USDT баланс
+				balance.POST("/check", handler.GetBalancesByAddress)        // Получить балансы (POST версия)
+				balance.GET("/wallet/:wallet_id", handler.GetBalanceByWalletID) // Получить балансы по ID кошелька из БД
+			}
 		}
 	}
 }

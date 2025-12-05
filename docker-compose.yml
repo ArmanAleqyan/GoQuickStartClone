@@ -73,8 +73,15 @@ services:
       - BLOCKCHAIN_SERVICE_URL=blockchain-service:50053
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=ironnode
+      - ENCRYPTION_KEY=OAaGb1mBUfBv7Jy4zTTv6+yTmZwCrOM2XBmTzWwBoLo=
     depends_on:
       - redis
+      - postgres
       - auth-service
       - user-service
       - blockchain-service

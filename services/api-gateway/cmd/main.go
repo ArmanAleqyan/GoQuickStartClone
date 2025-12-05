@@ -37,6 +37,17 @@ func main() {
 	authHandler := handler.NewAuthHandler(cfg)
 	blockchainHandler := handler.NewBlockchainHandler(cfg)
 
+	// Initialize wallet service
+	if err := handler.InitWalletService(cfg.Database.DSN()); err != nil {
+		logger.Fatal("Failed to initialize wallet service:", err)
+	}
+	logger.Info("Wallet service initialized successfully")
+
+	// Initialize Tron client
+	tronNodeURL := "http://78.46.94.60:8090"
+	handler.InitTronClient(tronNodeURL)
+	logger.Info("Tron client initialized successfully. Node:", tronNodeURL)
+
 	// Setup routes
 	routes.SetupRoutes(router, authHandler, blockchainHandler, redisClient)
 

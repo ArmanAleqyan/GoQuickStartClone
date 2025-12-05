@@ -70,12 +70,16 @@ func runMigrations(db *gorm.DB) error {
 		&models.BlockchainNode{},
 		&models.RequestLog{},
 		&models.Subscription{},
+		&models.Wallet{},
+		&models.PasswordReset{},
 	)
 }
 
 func rollbackMigrations(db *gorm.DB) error {
 	// Drop all tables (use with caution!)
 	return db.Migrator().DropTable(
+		&models.PasswordReset{},
+		&models.Wallet{},
 		&models.Subscription{},
 		&models.RequestLog{},
 		&models.BlockchainNode{},
